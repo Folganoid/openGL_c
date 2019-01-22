@@ -1,15 +1,12 @@
 #include <GL/glut.h>
 #include <math.h>
-#include <string>
 #include <stdlib.h>
 
 float WinWid = 400.0;
 float WinHei = 400.0;
 int Angle = 0;
 float Scale = 1.0;
-char ang[7+5] = "Angle: ";
-char res[7+5] = "Angle: ";
-char buf[5];
+float x=0.0, y=0.0;
 
 void Draw()
 {
@@ -20,23 +17,15 @@ void Draw()
     glRotatef(Angle, 0.0, 0.0, 1.0);
     glScalef(Scale, Scale, 1.0);
     glBegin(GL_LINES);
-        for(float i = -WinWid/2; i <= WinWid/2; i += 20.0) {
-            glVertex2f(i, -WinHei/2);
-            glVertex2f(i, WinHei/2);
+        for(float i = 0+x; i <= WinWid+x; i += 20.0) {
+            glVertex2f(i, 0+y);
+            glVertex2f(i, WinHei+y);
         }
-        for(float i = -WinHei/2; i <= WinHei/2; i += 20.0) {
-            glVertex2f(-WinWid/2, i);
-            glVertex2f(WinWid/2, i);
+        for(float i = 0+y; i <= WinHei+y; i += 20.0) {
+            glVertex2f(0+x, i);
+            glVertex2f(WinWid+x, i);
         }
     glEnd();
-
-    sprintf(buf, "%d", Angle);
-
-    for (int i = 7; i < 12 ; i++) {
-        res[i] = buf[i-7];
-    }
-
-    glutSetWindowTitle(res);
 
     glPopMatrix();
     glutSwapBuffers();
@@ -44,34 +33,35 @@ void Draw()
 
 }
 
+void MouseMove(int ax, int ay)
+{
+    x=ax;
+    y=ay;
+}
+
+void MousePressed(int button, int state, int x, int y)
+{
+    // switch(button)
+    // {
+    //     case GLUT_LEFT_BUTTON: glutSetWindowTitle("left button"); break;
+    //     case GLUT_RIGHT_BUTTON: glutSetWindowTitle("right button"); break;
+    //     case GLUT_MIDDLE_BUTTON: glutSetWindowTitle("mid button"); break;
+    // }
+
+
+
+}
+
+void MousePressedMove(int ax, int ay)
+{
+    glutSetWindowTitle("pressmove");
+}
+
 void Timer(int value)
 {
-
     Draw();
     glutPostRedisplay();
     glutTimerFunc(20, Timer, 0);
-}
-
-void Keyboard(unsigned char key, int x, int y)
-{
-    switch(key)
-    {
-        case 'a': Angle++;
-            break;
-        case 'd': Angle--;
-            break;
-    }
-}
-
-void SKeyboard(int key, int x, int y)
-{
-    switch(key)
-    {
-        case GLUT_KEY_LEFT: Angle++;
-        break;
-        case GLUT_KEY_RIGHT: Angle--;
-        break;
-    }
 }
 
 void Initialize() 
@@ -79,7 +69,8 @@ void Initialize()
     glClearColor(0.0,0.0,0.0,1.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-WinWid/2, WinWid/2, -WinHei/2, WinHei/2, -200.0, 200.0);
+    // glOrtho(-WinWid/2, WinWid/2, -WinHei/2, WinHei/2, -200.0, 200.0);
+    glOrtho(0, WinWid, WinHei, 0, -200.0, 200.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -94,8 +85,11 @@ int main(int argc, char** argv)
     //reg
     glutDisplayFunc(Draw);
     glutTimerFunc(50, Timer, 0);
-    glutKeyboardFunc(Keyboard);
-    glutSpecialFunc(SKeyboard);
+
+    glutMotionFunc(MousePressedMove);
+    glutPassiveMotionFunc(MouseMove);
+    glutMouseFunc(MousePressed);
+
     Initialize();
 
     glutMainLoop();
