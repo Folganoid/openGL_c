@@ -1,14 +1,20 @@
 #include <GL/glut.h>
 #include <math.h>
+#include <string>
 #include <stdlib.h>
 
 float WinWid = 400.0;
 float WinHei = 400.0;
-float Angle = 0.0, Scale=1.0;
+int Angle = 0;
+float Scale = 1.0;
+char ang[7+5] = "Angle: ";
+char res[7+5] = "Angle: ";
+char buf[5];
 
 void Draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+    Angle %= 360;
     glPushMatrix();
     Scale = 1.0-abs(sin(3.14*Angle/90.0)/sqrt(3.0)/2);
     glRotatef(Angle, 0.0, 0.0, 1.0);
@@ -23,31 +29,49 @@ void Draw()
             glVertex2f(WinWid/2, i);
         }
     glEnd();
+
+    sprintf(buf, "%d", Angle);
+
+    for (int i = 7; i < 12 ; i++) {
+        res[i] = buf[i-7];
+    }
+
+    glutSetWindowTitle(res);
+
     glPopMatrix();
     glutSwapBuffers();
+
+
 }
 
 void Timer(int value)
 {
-    switch(value)
-    {
-        case 0: glColor3f(1.0, 1.0, 1.0);
-            break;
-        case 1: glColor3f(1.0, 0.0, 0.0);
-            break;
 
-    }
-
-    ++Angle;
     Draw();
     glutPostRedisplay();
-    glutTimerFunc(20, Timer, rand() % 2);
+    glutTimerFunc(20, Timer, 0);
 }
 
-void Timer2(int) {
-    glColor3f(0.0, 1.0, 0.0);
-    glutPostRedisplay();
-    glutTimerFunc(1000, Timer2, 1);
+void Keyboard(unsigned char key, int x, int y)
+{
+    switch(key)
+    {
+        case 'a': Angle++;
+            break;
+        case 'd': Angle--;
+            break;
+    }
+}
+
+void SKeyboard(int key, int x, int y)
+{
+    switch(key)
+    {
+        case GLUT_KEY_LEFT: Angle++;
+        break;
+        case GLUT_KEY_RIGHT: Angle--;
+        break;
+    }
 }
 
 void Initialize() 
@@ -70,7 +94,8 @@ int main(int argc, char** argv)
     //reg
     glutDisplayFunc(Draw);
     glutTimerFunc(50, Timer, 0);
-    glutTimerFunc(1000, Timer2, 0);
+    glutKeyboardFunc(Keyboard);
+    glutSpecialFunc(SKeyboard);
     Initialize();
 
     glutMainLoop();
